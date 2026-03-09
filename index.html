@@ -165,9 +165,14 @@
         <div id="messageSection" class="hidden mt-6 text-center p-6 bg-gray-50 rounded-xl border border-gray-200">
             <h3 id="messageTitle" class="text-xl font-bold text-gray-800 mb-2"></h3>
             <p id="messageText" class="text-gray-600 mb-4"></p>
+
+            <!-- 투표 수정 버튼 추가 -->
+            <button id="modifyVoteBtn" class="hidden w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all mb-4 text-lg">
+                ✏️ 내 투표 수정하기
+            </button>
             
             <!-- 투표 결과가 동적으로 추가될 공간 -->
-            <div id="resultContainer" class="text-left mt-6 border-t border-gray-200 pt-6"></div>
+            <div id="resultContainer" class="text-left mt-2 border-t border-gray-200 pt-6"></div>
         </div>
 
     </div>
@@ -219,6 +224,7 @@
         const userPasswordInput = document.getElementById('userPassword');
         const loginError = document.getElementById('loginError');
         const formError = document.getElementById('formError');
+        const modifyVoteBtn = document.getElementById('modifyVoteBtn'); // 수정 버튼
 
         let currentUser = "";
 
@@ -275,7 +281,7 @@
                 });
                 html += `</ul>`;
 
-                // [결과 2] 장소 부문 (5개 모두 표시하도록 수정!)
+                // [결과 2] 장소 부문 (5개 모두 표시)
                 html += `<h4 class="font-bold text-gray-800 text-lg mb-3 border-t border-gray-200 pt-6">🥩 장소 득표 순위</h4>`;
                 html += `<ul class="space-y-2">`;
                 sortedRestaurants.forEach((item, index) => { 
@@ -320,10 +326,28 @@
                 const docSnap = await getDoc(tokenRef);
 
                 if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    currentUser = name; // 중요: 수정을 위해 현재 사용자 이름 저장
+                    
+                    // 기존에 투표한 항목을 폼에 미리 체크해두기
+                    if (data.selected_dates) {
+                        document.querySelectorAll('input[name="date"]').forEach(cb => {
+                            cb.checked = data.selected_dates.includes(cb.value);
+                        });
+                    }
+                    if (data.selected_restaurant) {
+                        const radio = document.querySelector(`input[name="restaurant"][value="${data.selected_restaurant}"]`);
+                        if (radio) radio.checked = true;
+                    }
+
                     loginSection.classList.add('hidden');
                     messageSection.classList.remove('hidden');
+                    modifyVoteBtn.classList.remove('hidden'); // 수정 버튼 노출
+                    
+                    messageSection.classList.remove('bg-blue-50', 'border-blue-200'); // 기존 완료 테마 초기화
+                    messageTitle.classList.remove('text-blue-800');
                     messageTitle.innerText = "🛑 이미 투표를 완료하셨습니다!";
-                    messageText.innerText = "아래에서 현재까지의 투표 결과를 확인해 보세요.";
+                    messageText.innerText = "아래에서 현재 투표 결과를 확인하거나, 투표를 다시 수정해 보세요.";
                     await showResults(); 
                 } else {
                     currentUser = name;
@@ -341,6 +365,17 @@
 
         userPasswordInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') loginBtn.click();
+        });
+
+        // 투표 수정 버튼 클릭 시 이벤트
+        modifyVoteBtn.addEventListener('click', () => {
+            messageSection.classList.add('hidden');
+            voteForm.classList.remove('hidden');
+            
+            // 제출 버튼 텍스트 변경 및 활성화
+            const submitBtn = voteForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = false; 
+            submitBtn.innerText = "✅ 투표 수정 완료하기"; 
         });
 
         // 폼 제출 시 (날짜 + 장소 저장)
@@ -369,6 +404,7 @@
             submitBtn.disabled = true;
 
             try {
+                // 수정을 진행하더라도 동일한 문서(currentUser)에 덮어씌워지므로 문제 없음!
                 await setDoc(doc(db, "voted_tokens", currentUser), { 
                     selected_dates: selectedDates,
                     selected_restaurant: selectedRestaurant.value,
@@ -377,9 +413,11 @@
 
                 voteForm.classList.add('hidden');
                 messageSection.classList.remove('hidden');
+                modifyVoteBtn.classList.remove('hidden'); // 투표 완료 후에도 계속 수정 버튼 노출
+                
                 messageSection.classList.add('bg-blue-50', 'border-blue-200');
                 messageTitle.classList.add('text-blue-800');
-                messageTitle.innerText = "✅ 투표 완료!";
+                messageTitle.innerText = "✅ 투표가 성공적으로 저장되었습니다!";
                 messageText.innerHTML = `소중한 의견 감사합니다.<br>현재 종합 순위를 확인해 보세요.`;
                 
                 await showResults();
