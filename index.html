@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPM 파트 회식 투표</title>
+    <!-- 디자인을 멋지게 만들어주는 Tailwind CSS 불러오기 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 기본 폰트 설정 */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', sans-serif; background-color: #f3f4f6; }
+        
+        /* 날짜 체크박스 디자인 (파란색) */
+        input[type="checkbox"]:checked + div {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        input[type="checkbox"]:checked + div .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* 장소 라디오 버튼 디자인 (주황색) */
+        input[type="radio"]:checked + div {
+            border-color: #f59e0b;
+            background-color: #fffbeb;
+        }
+        input[type="radio"]:checked + div .radio-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- 메인 컨테이너 -->
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md my-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">🎉 SPM 파트 회식 투표</h1>
+            <p class="text-gray-500 mt-2">일정과 장소를 한 번에 골라주세요!</p>
+        </div>
+
+        <!-- 1. 로그인 섹션 (사전 명단 기반) -->
+        <div id="loginSection" class="space-y-4">
+            <div>
+                <label for="userName" class="block text-sm font-medium text-gray-700 mb-1">참여자 이름</label>
+                <input type="text" id="userName" placeholder="본인의 이름을 입력하세요" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors outline-none">
+            </div>
+            
+            <div>
+                <label for="userPassword" class="block text-sm font-medium text-gray-700 mb-1 mt-3">입장 코드 (핸드폰 뒷 4자리)</label>
+                <input type="password" id="userPassword" placeholder="본인의 핸드폰 뒷 4자리 입력" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors outline-none">
+            </div>
+
+            <button id="loginBtn" 
+                class="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all">
+                명단 확인 및 투표 시작
+            </button>
+            <p id="loginError" class="text-red-500 text-sm text-center hidden"></p>
+        </div>
+
+        <!-- 2. 투표 폼 섹션 -->
+        <form id="voteForm" class="hidden space-y-4">
+            
+            <!-- [A] 날짜 투표 (다중 선택) -->
+            <h3 class="text-lg font-bold text-gray-800 mb-4 text-center">1. 참석 가능한 일자는? (중복 가능)</h3>
+            
+            <label class="block cursor-pointer relative">
+                <input type="checkbox" name="date" value="3월 13일 (금)" class="peer sr-only">
+                <div class="border-2 border-gray-200 rounded-xl p-4 transition-all flex items-center justify-between hover:bg-gray-50">
+                    <span class="text-lg font-medium text-gray-800">🗓️ 3월 13일 (금)</span>
+                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-colors">
+                        <svg class="w-4 h-4 text-white opacity-0 transform scale-50 transition-all check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                </div>
+            </label>
+
+            <label class="block cursor-pointer relative">
+                <input type="checkbox" name="date" value="3월 20일 (금)" class="peer sr-only">
+                <div class="border-2 border-gray-200 rounded-xl p-4 transition-all flex items-center justify-between hover:bg-gray-50">
+                    <span class="text-lg font-medium text-gray-800">🗓️ 3월 20일 (금)</span>
+                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-colors">
+                        <svg class="w-4 h-4 text-white opacity-0 transform scale-50 transition-all check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                </div>
+            </label>
+
+            <label class="block cursor-pointer relative">
+                <input type="checkbox" name="date" value="3월 27일 (금)" class="peer sr-only">
+                <div class="border-2 border-gray-200 rounded-xl p-4 transition-all flex items-center justify-between hover:bg-gray-50">
+                    <span class="text-lg font-medium text-gray-800">🗓️ 3월 27일 (금)</span>
+                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-colors">
+                        <svg class="w-4 h-4 text-white opacity-0 transform scale-50 transition-all check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                </div>
+            </label>
+
+            <hr class="my-6 border-gray-200 border-2 rounded">
+
+            <!-- [B] 장소 투표 (단일 선택) -->
+            <h3 class="text-lg font-bold text-gray-800 mb-4 text-center mt-2">2. 가장 끌리는 장소는? (1곳 선택)</h3>
+
+            <label class="block cursor-pointer relative">
+                <input type="radio" name="restaurant" value="인계곱창 오산점" class="peer sr-only">
+                <div class="border-2 border-gray-200 rounded-xl p-4 transition-all flex items-center justify-between hover:bg-gray-50">
+                    <span class="text-lg font-medium text-gray-800">🥢 인계곱창 오산점</span>
+                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-colors">
+                        <div class="w-2.5 h-2.5 bg-white rounded-full opacity-0 transform scale-50 transition-all radio-icon"></div>
+                    </div>
+                </div>
+            </label>
+
+            <label class="block cursor-pointer relative">
+                <input type="radio" name="restaurant" value="살살녹소 오산점" class="peer sr-only">
+                <div class="border-2 border-gray-200 rounded-xl p-4 transition-all flex items-center justify-between hover:bg-gray-50">
+                    <span class="text-lg font-medium text-gray-800">🥩 살살녹소 오산점</span>
+                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-colors">
+                        <div class="w-2.5 h-2.5 bg-white rounded-full opacity-0 transform scale-50 transition-all radio-icon"></div>
+                    </div>
+                </div>
+            </label>
+
+            <label class="block cursor-pointer relative">
+                <input type="radio" name="restaurant" value="테오쿠진 동탄 호수공원" class="peer sr-only">
+                <div class="border-2 border-gray-200 rounded-xl p-4 transition-all flex items-center justify-between hover:bg-gray-50">
+                    <span class="text-lg font-medium text-gray-800">🍽️ 테오쿠진 동탄 호수공원</span>
+                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-colors">
+                        <div class="w-2.5 h-2.5 bg-white rounded-full opacity-0 transform scale-50 transition-all radio-icon"></div>
+                    </div>
+                </div>
+            </label>
+
+            <label class="block cursor-pointer relative">
+                <input type="radio" name="restaurant" value="훈연실 파이어박스 동탄본점" class="peer sr-only">
+                <div class="border-2 border-gray-200 rounded-xl p-4 transition-all flex items-center justify-between hover:bg-gray-50">
+                    <span class="text-lg font-medium text-gray-800">🔥 훈연실 파이어박스 동탄본점</span>
+                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-colors">
+                        <div class="w-2.5 h-2.5 bg-white rounded-full opacity-0 transform scale-50 transition-all radio-icon"></div>
+                    </div>
+                </div>
+            </label>
+
+            <label class="block cursor-pointer relative">
+                <input type="radio" name="restaurant" value="영흥갈비 오산점" class="peer sr-only">
+                <div class="border-2 border-gray-200 rounded-xl p-4 transition-all flex items-center justify-between hover:bg-gray-50">
+                    <span class="text-lg font-medium text-gray-800">🍖 영흥갈비 오산점</span>
+                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-colors">
+                        <div class="w-2.5 h-2.5 bg-white rounded-full opacity-0 transform scale-50 transition-all radio-icon"></div>
+                    </div>
+                </div>
+            </label>
+
+            <p id="formError" class="text-red-500 text-sm text-center hidden font-bold mt-4"></p>
+
+            <button type="submit" 
+                class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-4 rounded-xl shadow-md transition-all text-lg">
+                ✅ 일정 & 장소 투표 완료하기
+            </button>
+        </form>
+
+        <!-- 3. 결과 및 실시간 집계 표시 섹션 -->
+        <div id="messageSection" class="hidden mt-6 text-center p-6 bg-gray-50 rounded-xl border border-gray-200">
+            <h3 id="messageTitle" class="text-xl font-bold text-gray-800 mb-2"></h3>
+            <p id="messageText" class="text-gray-600 mb-4"></p>
+            
+            <!-- 투표 결과가 동적으로 추가될 공간 -->
+            <div id="resultContainer" class="text-left mt-6 border-t border-gray-200 pt-6"></div>
+        </div>
+
+    </div>
+
+    <!-- 파이어베이스 스크립트 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAGHqvXTsfSFMcfECmfY35Z6JPkXpKJRf4",
+            authDomain: "dinnder-vote.firebaseapp.com",
+            projectId: "dinnder-vote",
+            storageBucket: "dinnder-vote.firebasestorage.app",
+            messagingSenderId: "1064660161021",
+            appId: "1:1064660161021:web:c3484d8b2ff65fb9b18994"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 💡 [핵심 보안] 파트장이 지정한 사전 팀원 명단과 핸드폰 뒷자리!
+        const allowedUsers = {
+            "이루리": "2625",
+            "윤정웅": "5442",
+            "장형원": "0973",
+            "장민규": "5436",
+            "정용래": "2458",
+            "이태범": "6286",
+            "김남중": "5054",
+            "안동현": "4574",
+            "강현준": "9220",
+            "이규빈": "1579",
+            "임성훈": "0449",
+            "박원석": "3817",
+            "정재훈": "9685",
+            "테스트": "1234" // 파트장님 테스트용 계정
+        };
+
+        // HTML 요소들
+        const loginSection = document.getElementById('loginSection');
+        const voteForm = document.getElementById('voteForm');
+        const messageSection = document.getElementById('messageSection');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageText = document.getElementById('messageText');
+        const resultContainer = document.getElementById('resultContainer');
+        const loginBtn = document.getElementById('loginBtn');
+        const userNameInput = document.getElementById('userName');
+        const userPasswordInput = document.getElementById('userPassword');
+        const loginError = document.getElementById('loginError');
+        const formError = document.getElementById('formError');
+
+        let currentUser = "";
+
+        // 실시간 투표 결과를 집계해서 보여주는 함수
+        async function showResults() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "voted_tokens"));
+                
+                let dateCounts = { "3월 13일 (금)": 0, "3월 20일 (금)": 0, "3월 27일 (금)": 0 };
+                let restaurantCounts = {
+                    "인계곱창 오산점": 0, "살살녹소 오산점": 0, "테오쿠진 동탄 호수공원": 0,
+                    "훈연실 파이어박스 동탄본점": 0, "영흥갈비 오산점": 0
+                };
+                
+                let totalVoters = 0;
+
+                querySnapshot.forEach((doc) => {
+                    const userName = doc.id;
+                    if (userName !== "테스트") { 
+                        totalVoters++;
+                        const data = doc.data();
+                        
+                        // 날짜 득표수 더하기
+                        if (data.selected_dates) {
+                            data.selected_dates.forEach(date => {
+                                if (dateCounts[date] !== undefined) dateCounts[date]++;
+                            });
+                        }
+                        
+                        // 장소 득표수 더하기
+                        if (data.selected_restaurant && restaurantCounts[data.selected_restaurant] !== undefined) {
+                            restaurantCounts[data.selected_restaurant]++;
+                        }
+                    }
+                });
+
+                // 내림차순 정렬
+                const sortedDates = Object.entries(dateCounts).sort((a, b) => b[1] - a[1]);
+                const sortedRestaurants = Object.entries(restaurantCounts).sort((a, b) => b[1] - a[1]);
+                
+                const dateMedals = ["🥇 1위", "🥈 2위", "🥉 3위"];
+                const restMedals = ["🥇 1위", "🥈 2위", "🥉 3위", "4위", "5위"];
+
+                let html = `<div class="text-center mb-6"><span class="bg-blue-100 text-blue-800 text-sm font-bold px-3 py-1 rounded-full">현재 ${totalVoters}명 참여</span></div>`;
+
+                // [결과 1] 날짜 부문
+                html += `<h4 class="font-bold text-gray-800 text-lg mb-3">🗓️ 날짜 득표 순위</h4>`;
+                html += `<ul class="space-y-2 mb-8">`;
+                sortedDates.forEach((item, index) => {
+                    html += `<li class="p-3 bg-white border border-gray-200 rounded-lg flex justify-between items-center shadow-sm">
+                        <span class="font-semibold text-gray-800">${dateMedals[index] || ""} ${item[0]}</span>
+                        <span class="font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">${item[1]} 표</span>
+                    </li>`;
+                });
+                html += `</ul>`;
+
+                // [결과 2] 장소 부문 (5개 모두 표시하도록 수정!)
+                html += `<h4 class="font-bold text-gray-800 text-lg mb-3 border-t border-gray-200 pt-6">🥩 장소 득표 순위</h4>`;
+                html += `<ul class="space-y-2">`;
+                sortedRestaurants.forEach((item, index) => { 
+                    html += `<li class="p-3 bg-white border border-gray-200 rounded-lg flex justify-between items-center shadow-sm">
+                        <span class="font-semibold text-gray-800 text-sm">${restMedals[index] || ""} ${item[0]}</span>
+                        <span class="font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full">${item[1]} 표</span>
+                    </li>`;
+                });
+                html += `</ul>`;
+
+                html += `<button onclick="location.reload()" class="w-full mt-8 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-xl transition-all">🔄 랭킹 새로고침</button>`;
+                resultContainer.innerHTML = html;
+
+            } catch (error) {
+                console.error("결과 불러오기 실패:", error);
+                resultContainer.innerHTML = `<p class="text-red-500 text-center">결과를 불러오는 데 실패했습니다.</p>`;
+            }
+        }
+
+        // 로그인 버튼 클릭 시
+        loginBtn.addEventListener('click', async () => {
+            const name = userNameInput.value.trim();
+            const password = userPasswordInput.value.trim();
+            
+            if (!allowedUsers.hasOwnProperty(name)) {
+                loginError.innerText = "등록되지 않은 이름입니다. 파트장에게 문의하세요.";
+                loginError.classList.remove('hidden');
+                return;
+            }
+            if (allowedUsers[name] !== password) {
+                loginError.innerText = "입장 코드가 일치하지 않습니다.";
+                loginError.classList.remove('hidden');
+                return;
+            }
+
+            loginBtn.innerText = "데이터베이스 확인 중...";
+            loginBtn.disabled = true;
+            loginError.classList.add('hidden');
+
+            try {
+                const tokenRef = doc(db, "voted_tokens", name);
+                const docSnap = await getDoc(tokenRef);
+
+                if (docSnap.exists()) {
+                    loginSection.classList.add('hidden');
+                    messageSection.classList.remove('hidden');
+                    messageTitle.innerText = "🛑 이미 투표를 완료하셨습니다!";
+                    messageText.innerText = "아래에서 현재까지의 투표 결과를 확인해 보세요.";
+                    await showResults(); 
+                } else {
+                    currentUser = name;
+                    loginSection.classList.add('hidden');
+                    voteForm.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("오류:", error);
+                loginError.innerText = "서버 연결에 실패했습니다.";
+                loginError.classList.remove('hidden');
+                loginBtn.innerText = "명단 확인 및 투표 시작";
+                loginBtn.disabled = false;
+            }
+        });
+
+        userPasswordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+
+        // 폼 제출 시 (날짜 + 장소 저장)
+        voteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            formError.classList.add('hidden'); // 기존 에러 메시지 숨김
+            
+            const checkedBoxes = document.querySelectorAll('input[name="date"]:checked');
+            const selectedDates = Array.from(checkedBoxes).map(cb => cb.value);
+
+            if (selectedDates.length === 0) {
+                formError.innerText = "🚨 참석 가능한 날짜를 최소 하루 이상 선택해 주세요!";
+                formError.classList.remove('hidden');
+                return;
+            }
+
+            const selectedRestaurant = document.querySelector('input[name="restaurant"]:checked');
+            if (!selectedRestaurant) {
+                formError.innerText = "🚨 가장 끌리는 장소를 1곳 선택해 주세요!";
+                formError.classList.remove('hidden');
+                return;
+            }
+
+            const submitBtn = voteForm.querySelector('button[type="submit"]');
+            submitBtn.innerText = "투표 저장 중...";
+            submitBtn.disabled = true;
+
+            try {
+                await setDoc(doc(db, "voted_tokens", currentUser), { 
+                    selected_dates: selectedDates,
+                    selected_restaurant: selectedRestaurant.value,
+                    time: new Date()
+                });
+
+                voteForm.classList.add('hidden');
+                messageSection.classList.remove('hidden');
+                messageSection.classList.add('bg-blue-50', 'border-blue-200');
+                messageTitle.classList.add('text-blue-800');
+                messageTitle.innerText = "✅ 투표 완료!";
+                messageText.innerHTML = `소중한 의견 감사합니다.<br>현재 종합 순위를 확인해 보세요.`;
+                
+                await showResults();
+
+            } catch (error) {
+                console.error("저장 오류:", error);
+                formError.innerText = "앗, 저장 중 문제가 발생했습니다. 파이어베이스 권한을 확인해주세요.";
+                formError.classList.remove('hidden');
+                submitBtn.innerText = "✅ 일정 & 장소 투표 완료하기";
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
